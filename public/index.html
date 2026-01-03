@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>3 LEVEL WIN FIX (hackii)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{
+  background:#000;
+  color:#0f0;
+  font-family:Arial;
+  text-align:center;
+}
+.box{
+  margin:40px auto;
+  width:300px;
+  padding:20px;
+  border:2px solid #0f0;
+  box-shadow:0 0 20px #0f0;
+}
+input,button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+.error{color:red;}
+table{
+  width:100%;
+  margin-top:20px;
+  color:white;
+}
+</style>
+</head>
+<body>
+
+<div class="box" id="loginBox">
+  <h3>3 LEVEL WIN FIX (hackii)</h3>
+  <input id="key" placeholder="Enter Login Key">
+  <button onclick="login()">LOGIN</button>
+  <div class="error" id="err"></div>
+</div>
+
+<div id="game" style="display:none">
+  <h3>Game History</h3>
+  <table border="1">
+    <thead>
+      <tr><th>Period</th><th>Number</th><th>Big/Small</th><th>Color</th></tr>
+    </thead>
+    <tbody id="hist"></tbody>
+  </table>
+</div>
+
+<script>
+function login(){
+  fetch("/login",{method:"POST",headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({key:document.getElementById("key").value})
+  }).then(r=>r.json()).then(d=>{
+    if(d.ok){
+      document.getElementById("loginBox").style.display="none";
+      document.getElementById("game").style.display="block";
+      load();
+      setInterval(load,60000);
+    }else{
+      document.getElementById("err").innerText="INVALID KEY";
+    }
+  })
+}
+
+function load(){
+  fetch("/result").then(r=>r.json()).then(d=>{
+    const h=document.getElementById("hist");
+    h.innerHTML="";
+    d.history.forEach(x=>{
+      h.innerHTML+=`<tr>
+        <td>${x.period}</td>
+        <td>${x.number}</td>
+        <td>${x.bigSmall}</td>
+        <td>${x.color.join(",")}</td>
+      </tr>`;
+    })
+  })
+}
+</script>
+
+</body>
+</html>
